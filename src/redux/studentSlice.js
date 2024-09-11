@@ -23,7 +23,7 @@ export const deleteStudentById = createAsyncThunk(
     const url = `${BASE_URL}/delete/${id}`;
     try {
       const response = await axios.delete(url);
-      return { id, message: response.data };
+      return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
     }
@@ -43,15 +43,16 @@ export const saveStudent = createAsyncThunk(
   }
 );
 
-export const updateStudent = createAsyncThunk(
-  "student/update",
-  async ({ id, studentData }, thunkAPI) => {
-    const url = `${BASE_URL}/update/${id}`;
+export const editStudent = createAsyncThunk(
+  "student/editProduct",
+  async ({ id, student }, thunkAPI) => {
+    const url = BASE_URL + `/update/${id}`;
     try {
-      const response = await axios.put(url, studentData);
-      return response.data;
+      console.log(student);
+      const response = await axios.put(url, student);
+      return response.data; // Trả về dữ liệu từ phản hồi
     } catch (error) {
-      return thunkAPI.rejectWithValue(error.response.data);
+      return thunkAPI.rejectWithValue(error.response.data); // Trả về lỗi nếu có
     }
   }
 );
@@ -76,41 +77,68 @@ const studentSlice = createSlice({
     totalPages: 0,
     status: null,
     error: null,
+    message: null,
   },
-  reducers: {},
+  reducers: {
+    resetStatusAndMessage: (state) => {
+      state.status = null;
+      state.message = null;
+      state.error = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getAlll.fulfilled, (state, action) => {
         state.students = action.payload.data.studentList;
         state.totalPages = action.payload.data.totalPages;
-        state.status = "success";
       })
       .addCase(deleteStudentById.fulfilled, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        console.log(action.payload.data);
         state.students = state.students.filter(
-          (student) => student.id !== action.payload.id
+          (student) => student.id !== action.payload.data
         );
-        state.status = "deleted";
+      })
+      .addCase(deleteStudentById.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.error = action.payload.error;
       })
       .addCase(saveStudent.fulfilled, (state, action) => {
-        state.students.push(action.payload.data);
-        state.status = "added";
+        state.students = [...state.students, action.payload.data];
+        state.status = action.payload.status;
+        state.message = action.payload.message;
       })
-      .addCase(updateStudent.fulfilled, (state, action) => {
-        const index = state.students.findIndex(
-          (student) => student.id === action.payload.id
+      .addCase(saveStudent.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.error = action.payload.data;
+        state.message = action.payload.message;
+      })
+      .addCase(editStudent.fulfilled, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.students = state.students.map((student) =>
+          student.id === action.payload.data.id ? action.payload.data : student
         );
-        state.students[index] = action.payload;
-        state.status = "updated";
+      })
+      .addCase(editStudent.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.error = action.payload.data;
       })
       .addCase(getStudentByName.fulfilled, (state, action) => {
         state.students = action.payload;
-        state.status = "success";
+        state.status = action.payload.status;
+        state.message = action.payload.message;
       })
       .addCase(getAlll.rejected, (state, action) => {
-        state.error = action.payload;
-        state.status = "error";
+        state.status = action.payload.status;
+        state.error = action.payload.data;
+        state.message = action.payload.message;
       });
   },
 });
 
+export const { resetStatusAndMessage } = studentSlice.actions;
 export default studentSlice.reducer;
