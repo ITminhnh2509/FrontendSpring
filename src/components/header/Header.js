@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Collapse,
   Navbar,
@@ -8,7 +8,7 @@ import {
   NavItem,
   NavLink,
   NavbarText,
-} from 'reactstrap';
+} from "reactstrap";
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,7 +17,7 @@ function Header() {
 
   return (
     <div>
-      <Navbar  expand="sm">
+      <Navbar expand="sm">
         <NavbarBrand href="/">TN</NavbarBrand>
         <NavbarToggler onClick={toggle} />
         <Collapse isOpen={isOpen} navbar>
@@ -26,11 +26,9 @@ function Header() {
               <NavLink href="/">Home</NavLink>
             </NavItem>
             <NavItem>
-              <NavLink href="/student">
-                Student
-              </NavLink>
+              <NavLink href="/student">Student</NavLink>
+              <NavLink href="/studentui">StudentUI</NavLink>
             </NavItem>
-            
           </Nav>
           <NavbarText>My website</NavbarText>
         </Collapse>

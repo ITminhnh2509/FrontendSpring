@@ -24,6 +24,8 @@ import {
   saveStudent,
   editStudent,
   resetStatusAndMessage,
+  getStudentByNgaySinh,
+  getStudentByXepLoai,
 } from "../../redux/studentSlice";
 import ReactPaginate from "react-paginate";
 import { ToastContainer, toast } from "react-toastify";
@@ -31,6 +33,9 @@ export default function Student() {
   const [currentPage, setCurrentPage] = useState(0);
   const limit = 5;
   const dispatch = useDispatch();
+  const [startYear, setStartYear] = useState(2000);
+  const [endYear, setEndYear] = useState(2001);
+  const [xepLoai, setXepLoai] = useState();
   const { status, message, error } = useSelector((state) => state.student);
   const { totalPages, students } = useSelector((state) => state.student);
   const [student, setStudent] = useState({
@@ -43,7 +48,16 @@ export default function Student() {
     const [day, month, year] = date.split("-");
     return `${year}-${month}-${day}`;
   };
-
+  const handleSearchByYear = () => {
+    if (startYear && endYear) {
+      dispatch(
+        getStudentByNgaySinh({ namSinh1: startYear, namsinh2: endYear })
+      );
+    }
+  };
+  const handleSearchXeoLoai = () => {
+    dispatch(getStudentByXepLoai(xepLoai));
+  };
   const convertDateToDDMMYYYY = (date) => {
     const [year, month, day] = date.split("-");
     return `${day}-${month}-${year}`;
@@ -165,15 +179,45 @@ export default function Student() {
       <Modal isOpen={modalSave} toggleSave={toggleSave}></Modal>
       <h1>Total: {totalPages}</h1>
 
-      <Label for="exampleSearch">Search</Label>
+      <Row>
+        <Col sm={4}>
+          <Label for="startYear">Start Year</Label>
+          <Input
+            type="number"
+            id="startYear"
+            name="startYear"
+            value={startYear}
+            onChange={(e) => setStartYear(e.target.value)}
+          />
+        </Col>
+        <Col sm={4}>
+          <Label for="endYear">End Year</Label>
+          <Input
+            type="number"
+            id="endYear"
+            name="endYear"
+            value={endYear}
+            onChange={(e) => setEndYear(e.target.value)}
+          />
+        </Col>
+        <Col sm={4}>
+          <Button color="primary" onClick={handleSearchByYear}>
+            Search
+          </Button>
+        </Col>
+      </Row>
       <Input
-        id="exampleSearch"
-        name="search"
-        placeholder="search placeholder"
-        type="search"
-        onChange={(e) => handleSearch(e.target.value)}
-      />
-
+        id="xepLoai"
+        name="xepLoai"
+        type="select"
+        value={xepLoai}
+        onChange={(e) => handleSearchXeoLoai(e)}
+      >
+        <option>Giỏi</option>
+        <option>Khá</option>
+        <option>Trung bình</option>
+        <option>Yếu</option>
+      </Input>
       <Table striped>
         <thead>
           <tr>

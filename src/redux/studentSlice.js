@@ -69,6 +69,30 @@ export const getStudentByName = createAsyncThunk(
     }
   }
 );
+export const getStudentByNgaySinh = createAsyncThunk(
+  "student/getByNgaySinh",
+  async ({ namSinh1, namsinh2 }, thunkAPI) => {
+    const url = `${BASE_URL}/getbynamsinh?namSinh1=${namSinh1}&namsinh2=${namsinh2}`;
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+export const getStudentByXepLoai = createAsyncThunk(
+  "student/getByXepLoai",
+  async (xepLoai, thunkAPI) => {
+    const url = `${BASE_URL}/getbyxeploai?xepLoai=${xepLoai}`;
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
 
 const studentSlice = createSlice({
   name: "student",
@@ -130,6 +154,23 @@ const studentSlice = createSlice({
       .addCase(getStudentByName.fulfilled, (state, action) => {
         state.students = action.payload;
         state.status = action.payload.status;
+      })
+      .addCase(getStudentByNgaySinh.fulfilled, (state, action) => {
+        state.students = action.payload.data;
+        state.status = action.payload.status;
+      })
+      .addCase(getStudentByXepLoai.fulfilled, (state, action) => {
+        state.students = action.payload.data;
+        state.status = action.payload.status;
+      })
+      .addCase(getStudentByNgaySinh.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.error = action.payload.data;
+        state.message = action.payload.message;
+      })
+      .addCase(getStudentByXepLoai.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.error = action.payload.data;
         state.message = action.payload.message;
       })
       .addCase(getAlll.rejected, (state, action) => {

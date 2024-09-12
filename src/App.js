@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
 import StudentPage from "./pages/student/StudentPage";
+import StudentUIPage from "./pages/student/StudentUIPage";
 import "bootstrap/dist/css/bootstrap.min.css";
 function App() {
   return (
