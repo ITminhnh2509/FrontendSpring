@@ -26,6 +26,7 @@ import {
   resetStatusAndMessage,
   getStudentByNgaySinh,
   getStudentByXepLoai,
+  search,
 } from "../../redux/studentSlice";
 import ReactPaginate from "react-paginate";
 import { ToastContainer, toast } from "react-toastify";
@@ -41,26 +42,15 @@ export default function Student() {
   const [student, setStudent] = useState({
     ten: "Lê Mèo",
     thanhPho: "HCM",
-    xeploai: "Giỏi",
-    ngaysinh: "2000-01-01",
+    xepLoai: "GIOI",
+    ngaySinh: "2000-01-01",
   });
-  const convertDateToYYYYMMDD = (date) => {
-    const [day, month, year] = date.split("-");
-    return `${year}-${month}-${day}`;
-  };
   const handleSearchByYear = () => {
     if (startYear && endYear) {
       dispatch(
         getStudentByNgaySinh({ namSinh1: startYear, namsinh2: endYear })
       );
     }
-  };
-  const handleSearchXeoLoai = () => {
-    dispatch(getStudentByXepLoai(xepLoai));
-  };
-  const convertDateToDDMMYYYY = (date) => {
-    const [year, month, day] = date.split("-");
-    return `${day}-${month}-${year}`;
   };
   useEffect(() => {
     dispatch(
@@ -88,30 +78,15 @@ export default function Student() {
     setModalSave(!modalSave);
     if (modalSave) dispatch(resetStatusAndMessage);
   };
-
-  // const convertDateToYYYYMMDD = (date) => {
-  //   const [day, month, year] = date.split("-");
-  //   return `${year}-${month}-${day}`;
-  // };
-
-  // const convertDateToDDMMYYYY = (date) => {
-  //   const [year, month, day] = date.split("-");
-  //   return `${day}-${month}-${year}`;
-  // };
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name == "ngaysinh") {
-      setStudent((prevStudent) => ({
-        ...prevStudent,
-        [name]: value,
-      }));
-    }
     setStudent((prevStudent) => ({
       ...prevStudent,
       [name]: value,
     }));
   };
   const handleSave = () => {
+    console.log(student);
     dispatch(saveStudent(student));
   };
 
@@ -130,7 +105,7 @@ export default function Student() {
     ten: "",
     thanhPho: "",
     ngaySinh: "",
-    xepLoai: "",
+    xepLoai: "Giỏi",
   });
   const [studentEdit, setStudentEdit] = useState({ isEdit: false, id: "" });
   const handle_edit = (id, item) => {
@@ -158,7 +133,7 @@ export default function Student() {
   };
   const convertToValue = (enumCode) => {
     switch (enumCode) {
-      case "Gioi":
+      case "GIOI":
         return XepLoaiEnum.GIOI;
       case "KHA":
         return XepLoaiEnum.KHA;
@@ -170,15 +145,82 @@ export default function Student() {
         return null;
     }
   };
+  const [studentSearch, setStudentSearch] = useState({
+    xepLoai: "",
+    ten: "",
+    thanhPho: "",
+    startYear: 2000,
+    endYear: 2024,
+  });
+  useEffect(() => {
+    dispatch(search(studentSearch));
+  }, [studentSearch]);
   return (
     <Container>
       <ToastContainer />
       <Button color="primary" onClick={toggleSave}>
         Add New
       </Button>
+      <Input onChange={(e) => handleSearch(e.target.value)} />
       <Modal isOpen={modalSave} toggleSave={toggleSave}></Modal>
       <h1>Total: {totalPages}</h1>
-
+      <div className="searchAll">
+        <div>
+          <Input
+            type="select"
+            value={studentSearch.xepLoai}
+            onChange={(e) => {
+              setStudentSearch({
+                ...studentSearch,
+                xepLoai: e.target.value,
+              });
+            }}
+          >
+            <option>...</option>
+            <option value="GIOI">Giỏi</option>
+            <option value="KHA">Khá</option>
+            <option value="TRUNG_BINH">Trunh Bình</option>
+            <option value="YEU">Yếu</option>
+          </Input>
+        </div>
+        <div className="my-3 d-flex">
+          <Input
+            type="number"
+            value={studentSearch.startYear}
+            onChange={(e) => {
+              setStudentSearch({
+                ...studentSearch,
+                startYear: e.target.value,
+              });
+            }}
+            className="mr-2"
+          >
+            <Input
+              type="number"
+              value={studentSearch.endYear}
+              onChange={(e) => {
+                setStudentSearch({
+                  ...studentSearch,
+                  endYear: e.target.value,
+                });
+              }}
+              className="mr-2"
+            ></Input>
+          </Input>
+          <Button>Search</Button>
+        </div>
+      </div>
+      <Input
+        type="text"
+        className="my-3"
+        value={studentSearch.ten}
+        onChange={(e) => {
+          setStudentSearch({
+            ...studentSearch,
+            ten: e.target.value,
+          });
+        }}
+      ></Input>
       <Row>
         <Col sm={4}>
           <Label for="startYear">Start Year</Label>
@@ -206,22 +248,12 @@ export default function Student() {
           </Button>
         </Col>
       </Row>
-      <Input
-        id="xepLoai"
-        name="xepLoai"
-        type="select"
-        value={xepLoai}
-        onChange={(e) => handleSearchXeoLoai(e)}
-      >
-        <option>Giỏi</option>
-        <option>Khá</option>
-        <option>Trung bình</option>
-        <option>Yếu</option>
-      </Input>
+
       <Table striped>
         <thead>
           <tr>
             <th>#</th>
+            <th>ID</th>
             <th>Tên sinh viên</th>
             <th>Ngày sinh</th>
             <th>Thành phố</th>
@@ -295,24 +327,25 @@ export default function Student() {
                 </td>
 
                 <td>
-                  {studentEdit.isEdit && item.id === studentEdit.id ? (
-                    <Input
-                      id="xepLoai"
-                      name="xepLoai"
-                      type="select"
-                      value={convertToValue(EStudent.xepLoai)}
-                      onChange={(e) =>
-                        setEStudent({ ...EStudent, xepLoai: e.target.value })
-                      }
-                    >
-                      <option>Giỏi</option>
-                      <option>Khá</option>
-                      <option>Trung bình</option>
-                      <option>Yếu</option>
-                    </Input>
-                  ) : (
-                    convertToValue(item.xepLoai)
-                  )}
+                  <div>
+                    {studentEdit.isEdit && item.id === studentEdit.id ? (
+                      <Input
+                        type="select"
+                        value={convertToValue(EStudent.xepLoai)}
+                        onChange={(e) =>
+                          setEStudent({ ...EStudent, xepLoai: e.target.value })
+                        }
+                      >
+                        <option>...</option>
+                        <option value="GIOI">Giỏi</option>
+                        <option value="KHA">Khá</option>
+                        <option value="TRUNG_BINH">Trung bình</option>
+                        <option value="YEU">Yếu</option>
+                      </Input>
+                    ) : (
+                      convertToValue(item.xepLoai)
+                    )}
+                  </div>
                 </td>
                 <td>
                   {studentEdit.isEdit && item.id === studentEdit.id ? (
@@ -418,12 +451,14 @@ export default function Student() {
                   id="xeploai"
                   name="xepLoai"
                   type="select"
+                  value={student.xepLoai}
                   onChange={handleChange}
                 >
-                  <option value={student.xeploai}>Giỏi</option>
-                  <option value={student.xeploai}>Khá</option>
-                  <option value={student.xeploai}>Trung bình</option>
-                  <option value={student.xeploai}>Yếu</option>
+                  <option>...</option>
+                  <option value="GIOI">Giỏi</option>
+                  <option value="KHA">Khá</option>
+                  <option value="TRUNG_BINH">Trung bình</option>
+                  <option value="YEU">Yếu</option>
                 </Input>
               </FormGroup>
               <FormGroup>
