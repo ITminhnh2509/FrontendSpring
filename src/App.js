@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 import HomePage from "./pages/home/HomePage";
 import StudentPage from "./pages/student/StudentPage";
-import StudentUIPage from "./pages/student/StudentUIPage";
+import StudentDetail from "./components/student/StudentDetail";
 import "bootstrap/dist/css/bootstrap.min.css";
 function App() {
   return (
@@ -17,6 +17,7 @@ function App() {
         <Routes>
           <Route index element={<HomePage />}></Route>
           <Route path="/student" element={<StudentPage />}></Route>
+          <Route path="/student-detail/:id" element={<StudentDetail />}></Route>
         </Routes>
       </Router>
     </div>

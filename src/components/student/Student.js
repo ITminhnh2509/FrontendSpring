@@ -30,6 +30,7 @@ import {
 } from "../../redux/studentSlice";
 import ReactPaginate from "react-paginate";
 import { ToastContainer, toast } from "react-toastify";
+import { Link } from "react-router-dom";
 export default function Student() {
   const [currentPage, setCurrentPage] = useState(0);
   const limit = 5;
@@ -377,6 +378,12 @@ export default function Student() {
                       >
                         <i class="fa-solid fa-pen-to-square"></i>
                       </Button>
+
+                      <Link to={`/student-detail/${item.id}`}>
+                        <Button className="btn btn-info">
+                          <i class="fa-solid fa-info"></i>
+                        </Button>
+                      </Link>
                     </>
                   )}
                 </td>

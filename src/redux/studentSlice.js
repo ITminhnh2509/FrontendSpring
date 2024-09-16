@@ -93,12 +93,29 @@ export const getStudentByXepLoai = createAsyncThunk(
     }
   }
 );
+
 export const search = createAsyncThunk(
   "student/search",
   async ({ xepLoai, ten, thanhPho, startYear, endYear }, thunkAPI) => {
     const url = `${BASE_URL}/search?xepLoai=${xepLoai}&ten=${ten}&thanhPho=${thanhPho}&startYear=${startYear}&endYear=${endYear}`;
     try {
       const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+export const uploadImage = createAsyncThunk(
+  "student/uploadImage",
+  async ({ id, formData }, thunkAPI) => {
+    const url = `${BASE_URL}/upload/${id}`;
+    try {
+      const response = await axios.post(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return response.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response.data);
@@ -198,6 +215,15 @@ const studentSlice = createSlice({
         state.status = action.payload.status;
         state.error = action.payload.data;
         state.message = action.payload.message;
+      })
+      .addCase(uploadImage.fulfilled, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+      })
+      .addCase(uploadImage.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.error = action.payload.data;
       });
   },
 });
