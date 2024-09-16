@@ -122,6 +122,30 @@ export const uploadImage = createAsyncThunk(
     }
   }
 );
+export const getAllImage = createAsyncThunk(
+  "student/getAllImage",
+  async (id, thunkAPI) => {
+    const url = `${BASE_URL}/getallimage/${id}`;
+    try {
+      const response = await axios.get(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
+export const deleteStudentImageById = createAsyncThunk(
+  "student/getallimage/delete",
+  async (id, thunkAPI) => {
+    const url = `${BASE_URL}/getallimage/delete/${id}`;
+    try {
+      const response = await axios.delete(url);
+      return response.data;
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data);
+    }
+  }
+);
 const studentSlice = createSlice({
   name: "student",
   initialState: {
@@ -130,6 +154,7 @@ const studentSlice = createSlice({
     status: null,
     error: null,
     message: null,
+    studentDetail: null,
   },
 
   reducers: {
@@ -224,6 +249,29 @@ const studentSlice = createSlice({
         state.status = action.payload.status;
         state.message = action.payload.message;
         state.error = action.payload.data;
+      })
+      .addCase(getAllImage.fulfilled, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.studentDetail = action.payload.data;
+      })
+      .addCase(getAllImage.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.error = action.payload.data;
+      })
+      .addCase(deleteStudentImageById.fulfilled, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        console.log(action.payload.data);
+        state.students = state.students.filter(
+          (student) => student.id !== action.payload.data
+        );
+      })
+      .addCase(deleteStudentImageById.rejected, (state, action) => {
+        state.status = action.payload.status;
+        state.message = action.payload.message;
+        state.error = action.payload.error;
       });
   },
 });
