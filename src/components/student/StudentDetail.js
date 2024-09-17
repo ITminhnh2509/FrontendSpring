@@ -17,6 +17,7 @@ export default function StudentDetail() {
   const [image, setImage] = useState([]);
   const [showMessage, setShowMessage] = useState(false);
   const dispatch = useDispatch();
+  const BASE_URL = process.env.REACT_APP_API_URL;
   const { studentDetail, message, error, status } = useSelector(
     (state) => state.student
   );
@@ -42,12 +43,9 @@ export default function StudentDetail() {
 
   const fetchImage = async (imageUrl) => {
     try {
-      const response = await axios.get(
-        `http://localhost:8080/api/v1/student/images/${imageUrl}`,
-        {
-          responseType: "blob",
-        }
-      );
+      const response = await axios.get(`${BASE_URL}/images/${imageUrl}`, {
+        responseType: "blob",
+      });
       const imageObjectUrl = URL.createObjectURL(response.data);
       setImage((pre) => ({ ...pre, [imageUrl]: imageObjectUrl }));
     } catch (error) {
